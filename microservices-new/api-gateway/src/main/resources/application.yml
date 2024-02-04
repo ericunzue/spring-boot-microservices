@@ -1,0 +1,49 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          ##Product service route
+          - id: product-service
+            uri: lb://product-service
+            ## leer doc https://docs.spring.io/spring-cloud-gateway/reference/spring-cloud-gateway-server-mvc/gateway-request-predicates.html
+            predicates:
+              - Path=/api/product
+          ##Order-service
+          - id: order-service
+            uri: lb://order-service
+            predicates:
+              - Path=/api/order
+          ##Inventory-service
+          - id: inventory-service
+            uri: lb://inventory-service
+            predicates:
+              - Path=/api/inventory
+          ##Discovery-server
+          - id: discovery-server
+            uri: http://localhost:8761
+            predicates:
+              - Path=/eureka/web
+            filters:
+              - SetPath=/
+          ##Discovery-server static resources route
+          - id: discovery-server-static
+            uri: http://localhost:8761
+            predicates:
+              - Path=/eureka/**
+
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        cloud:
+          gateway: trace
+          route:
+            routeDefinitionLocator: info
